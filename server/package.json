@@ -1,0 +1,10 @@
+{
+  "name": "tether-messenger-server",
+  "version": "1.0.0",
+  "description": "server for tether messenger app",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
