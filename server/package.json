@@ -2,9 +2,14 @@
   "name": "tether-messenger-server",
   "version": "1.0.0",
   "description": "server for tether messenger app",
-  "main": "index.js",
+  "main": "dist/app.js",
   "license": "MIT",
+  "scripts": {
+    "start": "NODE_ENV=development npx tsc && node dist/app.js",
+    "dev": "nodemon --exec npm start --watch src --ext ts"
+  },
   "dependencies": {
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "typescript": "^4.8.2"
   }
 }
