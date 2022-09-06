@@ -7,7 +7,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 import router from './router';
-import syncServiceDetails from './syncServiceDetails';
+import syncServiceDetails from './twilio/syncServiceDetails';
 
 // Create Express webapp
 const app = express();

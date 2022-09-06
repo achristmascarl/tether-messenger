@@ -1,7 +1,7 @@
 const Router = require('express').Router;
 import camelCase from 'camelcase';
 
-import tokenGenerator from './tokenGenerator';
+import tokenGenerator from './twilio/tokenGenerator';
 import config from './config';
 
 const router = new Router();

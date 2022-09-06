@@ -1,6 +1,6 @@
 const Twilio = require('twilio');
-import config from './config';
-import nameGenerator from "./nameGenerator";
+import config from '../config';
+import nameGenerator from "../utils/nameGenerator";
 
 // Access Token used for Chat and Sync
 const AccessToken = Twilio.jwt.AccessToken;
