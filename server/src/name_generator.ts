@@ -20,6 +20,25 @@ const LAST_NAMES = [
     'Zimmerman',
 ];
 
+/*
+* I feel like users are going to be confused if it's some random name like "Bobby Berlin" or, even better,
+* "Wendy XiaoJin" haha. Why not something like Google Doc's animals?
+*/
+
+/*
+const ANIMALS = [
+    'Aardvark', 'Bat', 'Chipmunk', 'Dolphin', 'Elephant', 'Falcon', 'Gecko', 'Hawk',
+    'Iguana', 'Jaguar', 'Kitten', 'Ladybug', 'Monkey', 'Narwhal', 'Octopus', 'Penguin',
+    'Quail', 'Raccoon', 'Sheep', 'Tiger', 'Unicorn', 'Vole', 'Whale',
+    'X-ray Fish', 'Yak', 'Zebra',
+];
+
+const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+export default function nameGenerator() { rand(ADJECTIVES) + rand(ANIMALS)};
+
+*/
+
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export default function nameGenerator() { rand(ADJECTIVES) + rand(FIRST_NAMES) + rand(LAST_NAMES) };
