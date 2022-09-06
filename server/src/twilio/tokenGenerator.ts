@@ -1,6 +1,6 @@
 const Twilio = require('twilio');
 import config from './config';
-import nameGenerator from "./name_generator";
+import nameGenerator from "./nameGenerator";
 
 // Access Token used for Chat and Sync
 const AccessToken = Twilio.jwt.AccessToken;
@@ -27,11 +27,11 @@ function tokenGenerator(identity = 0) {
   // Assign the provided identity or generate a new one
   token.identity = identity || nameGenerator();
 
-  if (config.TWILIO_CHAT_SERVICE_SID) {
+  if (config.TWILIO_CONVERSATIONS_SERVICE_SID) {
     // Create a "grant" which enables a client to use IPM as a given user,
     // on a given device
     const chatGrant = new ChatGrant({
-      serviceSid: config.TWILIO_CHAT_SERVICE_SID
+      serviceSid: config.TWILIO_CONVERSATIONS_SERVICE_SID
     });
     token.addGrant(chatGrant);
   }

@@ -1,18 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ChatItem from '../components/ChatItem';
 // TODO: replace with twilio conversations...
-import { Client } from 'twilio-chat';
+import { Client as ConversationsClient } from '@twilio/conversations';
 
-export default function ChatView({ props, route, navigation }) {
+import { getToken } from '../api';
+
+export default function ChatView({ route, navigation }) {
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [channel, setChannel] = useState(null);
-  const [room, setRoom] = useState(null);
-  const [email, setEmail] = useState(null);
+  const [conversation, setConversation] = useState(null);
+  const [recipientId, setRecipientId] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const bottomRef = useRef(null);
+  const messagesRef = useRef([]);
+  messagesRef.current = messages;
 
   // handle network requests, events, etc. async
   useEffect(() => {
@@ -25,65 +28,89 @@ export default function ChatView({ props, route, navigation }) {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    console.log('conversation:');
+    console.log(conversation);
+  }, [conversation]);
+
   async function handleTwilioClient() {
     const params = route.params;
     console.log(params);
     // TODO: await finishing setting state before continuing so that
     // it's all from state
     // use mobx... ?
-    setRoom(params.room);
-    setEmail(params.email);
+    setRecipientId(params.recipientId);
+    setUserId(params.userId);
 
-    console.log(`room: ${params.room}, user: ${params.email}`);
+    console.log(`recipientId: ${params.recipientId}, user: ${params.userId}`);
     let token = '';
 
-    if (!params.email || !params.room) {
+    if (!params.userId || !params.recipientId) {
       navigation.navigate('Welcome');
     } else {
       setLoading(true);
       console.log('loading');
       try {
-        token = await getToken(params.email);
+        token = await getToken(params.userId);
       } catch (err) {
         console.error(err.message);
-        throw new Error('Unable to get token, please reload this page');
       }
   
-      const client = new Client(token);
+      const client = new ConversationsClient(token);
+
+      client.on('connectionError', (data) => {
+        console.log('connection error; data:');
+        console.log(data);
+      });
+
+      client.on('connectionStateChanged', (state) => {
+        console.log('new connection state: ' + state);
+      });
+
+      await client.on('stateChanged', async (state) => {
+        console.log('state changed: ' + state);
+        if (state === 'initialized') {
+          // Use the client
+          try {
+            const conversation = await client.getConversationByUniqueName(params.recipientId);
+            console.log('joining conversation');
+            console.log(conversation);
+            joinConversation(conversation);
+          } catch(err) {
+            console.error(err.message);
+            try {
+              const conversation = await client.createConversation({
+                uniqueName: params.recipientId,
+                friendlyName: params.recipientId,
+              });
+              console.log('created conversation');
+              console.log(conversation);
+              joinConversation(conversation);
+            } catch (err) {
+              console.error(err.message);
+            }
+          }
+        } else if (state === 'failed') {
+          console.error('connection failed');
+        }
+      });
   
       client.on('tokenAboutToExpire', async () => {
-        const token = await getToken(params.email);
+        const token = await getToken(params.userId);
         client.updateToken(token);
       });
     
       client.on('tokenExpired', async () => {
-        const token = await getToken(params.email);
+        const token = await getToken(params.userId);
         client.updateToken(token);
       });
   
-      client.on('channelJoined', async (channel) => {
-        // getting list of all messages since this is an existing channel
-        const messages = await channel.getMessages();
+      client.on('conversationJoined', async (conversation) => {
+        // getting list of all messages since this is an existing conversation
+        const messages = await conversation.getMessages();
         setMessages(messages.items || []);
         scrollToBottom();
       });
-    
-      try {
-        const channel = await client.getChannelByUniqueName(params.room);
-        joinChannel(channel);
-      } catch(err) {
-        try {
-          const channel = await client.createChannel({
-            uniqueName: params.room,
-            friendlyName: params.room,
-          });
-      
-          joinChannel(channel);
-        } catch (err) {
-          console.error(err.message);
-          throw new Error('Unable to create channel, please reload this page');
-        }
-      }
     }
   }
 
@@ -91,43 +118,30 @@ export default function ChatView({ props, route, navigation }) {
     bottomRef.current?.scrollIntoView({behavior: 'smooth'});
   }
 
-  async function getToken(email) {
-    let data;
-    await axios.get(`http://localhost:8000/token/${email}`)
-      // get response
-      .then(function (response) {
-        console.log(response.data);
-        data = response.data;
-      })
-      // error handling
-      .catch(function (error) {
-        console.log(error);
-        throw new Error('Unable to get token');
-      });
-    return data.token;
-  }
-
-  async function joinChannel(channel) {
-    if (channel.channelState.status !== 'joined') {
-      await channel.join();
+  async function joinConversation(conversation) {
+    console.log('attempting to join conversation');
+    console.log(conversation.status);
+    if (conversation.status !== 'joined') {
+      await conversation.join();
     }
 
-    setChannel(channel);
+    setConversation(conversation);
     setLoading(false);
 
-    channel.on('messageAdded', handleMessageAdded);
+    conversation.on('messageAdded', handleMessageAdded);
     scrollToBottom();
   }
 
   function handleMessageAdded(message) {
-    const oldMessages = messages;
-    setMessages([...oldMessages, message]);
+    const updatedMessages = [...messagesRef.current];
+    updatedMessages.push(message);
+    setMessages(updatedMessages);
   }
 
   function sendMessage() {
     if (text.length > 0) {
       setLoading(true);
-      channel.sendMessage(String(text).trim());
+      conversation.sendMessage(String(text).trim());
       setText('');
       setLoading(false);
     }
@@ -136,31 +150,32 @@ export default function ChatView({ props, route, navigation }) {
   return(
     <>
       {loading ? <h1>loading</h1> : <></>}
-      <h2>{`Room: ${room}, User: ${email}`}</h2>
+      <h2>{`Recipient: ${recipientId}, User: ${userId}`}</h2>
       <ul>
         {messages && 
           messages.map((message) =>
             <ChatItem
               key={message.index}
               message={message}
-              ownEmail={email}
+              myUserId={userId}
             />
           )
         }
       </ul>
+      <div ref={bottomRef}/>
       <h3>enter message</h3>
       <input
         required
         placeholder='Enter message'
         value={text}
-        disabled={!channel}
+        disabled={!conversation}
         onChange={(event) => 
           setText(event.target.value)
         }
       />
       <button
         onClick={sendMessage}
-        disabled={!channel}
+        disabled={!conversation}
       >Send</button>
     </>
   );

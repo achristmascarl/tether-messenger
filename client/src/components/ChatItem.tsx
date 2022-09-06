@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 
 export default function ChatItem(props) {
   const message = props.message;
-  const ownEmail = props.ownEmail;
-  const isOwnMessage = message.author === ownEmail;
+  const myUserId = props.myUserId;
+  const isOwnMessage = message.author === myUserId;
 
   return(
     <>

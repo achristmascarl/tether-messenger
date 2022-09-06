@@ -7,13 +7,14 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 import router from './router';
-import syncServiceDetails from './sync_service_details';
+import syncServiceDetails from './syncServiceDetails';
 
 // Create Express webapp
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 // use cors
+// TODO: specify access control allow origin
 const cors = require('cors');
 app.use(cors());
 

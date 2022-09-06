@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 
-export default function WelcomeView({props, navigation}) {
-  const [email, setEmail] = useState('');
-  const [room, setRoom] = useState('');
+export default function WelcomeView({ navigation}) {
+  const [userId, setUserId] = useState('');
+  const [recipientId, setRecipientId] = useState('');
 
   function login() {
-    if (email && room) {
-      console.log(`room: ${room}, user: ${email}`);
-      navigation.navigate('Chat', {room: room, email: email});
+    if (userId && recipientId) {
+      console.log(`recipient: ${recipientId}, user: ${userId}`);
+      navigation.navigate('Chat', {recipientId: recipientId, userId: userId});
     }
   }
 
-  function handleChangeEmail(event) {
-    setEmail(event.target.value);
+  function handleChangeUserId(event) {
+    setUserId(event.target.value);
   }
 
-  function handleChangeRoom(event) {
-    setRoom(event.target.value);
+  function handleChangeRecipientId(event) {
+    setRecipientId(event.target.value);
   }
 
   return(
@@ -30,20 +30,20 @@ export default function WelcomeView({props, navigation}) {
         </h2>
         <input
           required
-          value={email}
-          name='email'
-          placeholder='enter email address'
-          onChange={handleChangeEmail}
+          value={userId}
+          name='userId'
+          placeholder='enter your email address'
+          onChange={handleChangeUserId}
         />
         <h2>
-         room
+         receipient
         </h2>
         <input
           required
-          value={room}
-          name='room'
-          placeholder='enter room name'
-          onChange={handleChangeRoom}
+          value={recipientId}
+          name='recipientId'
+          placeholder='enter recipient email address'
+          onChange={handleChangeRecipientId}
         />
         <button onClick={login}>Login</button>
       </div>
