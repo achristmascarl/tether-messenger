@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import ChatItem from '../components/ChatItem';
+// TODO: replace with twilio conversations...
 import { Client } from 'twilio-chat';
 
 export default function ChatView({ props, route, navigation }) {
@@ -27,6 +28,9 @@ export default function ChatView({ props, route, navigation }) {
   async function handleTwilioClient() {
     const params = route.params;
     console.log(params);
+    // TODO: await finishing setting state before continuing so that
+    // it's all from state
+    // use mobx... ?
     setRoom(params.room);
     setEmail(params.email);
 
