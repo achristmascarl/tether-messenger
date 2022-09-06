@@ -1,4 +1,4 @@
-require('dotenv').config();
+import config from './config';
 
 // Node/Express
 const express = require('express');
@@ -40,7 +40,7 @@ syncServiceDetails();
 
 // Create http server and run it
 const server = http.createServer(app);
-const port = process.env.PORT || 8000;
+const port = config.PORT;
 server.listen(port, function() {
   console.log('Express server running on *:' + port);
 });

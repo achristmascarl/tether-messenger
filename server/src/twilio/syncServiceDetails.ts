@@ -1,13 +1,14 @@
 const Twilio = require('twilio');
+import config from '../config';
 require('dotenv').config();
 
 function syncServiceDetails() {
-    const syncServiceSid = process.env.TWILIO_SYNC_SERVICE_SID || 'default';
+    const syncServiceSid = config.TWILIO_SYNC_SERVICE_SID || 'default';
 
     const client = new Twilio(
-        process.env.TWILIO_API_KEY,
-        process.env.TWILIO_API_SECRET,
-        {accountSid: process.env.TWILIO_ACCOUNT_SID}
+        config.TWILIO_API_KEY,
+        config.TWILIO_API_SECRET,
+        {accountSid: config.TWILIO_ACCOUNT_SID}
     );
     client.sync
         .services(syncServiceSid)
