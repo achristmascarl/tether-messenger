@@ -1,10 +1,10 @@
 import config from './config';
 
 // Node/Express
-const express = require('express');
-const http = require('http');
-const path = require('path');
-const bodyParser = require('body-parser');
+import express = require('express');
+import http = require('http');
+import path = require('path');
+import bodyParser = require('body-parser');
 
 import router from './router';
 import syncServiceDetails from './twilio/syncServiceDetails';
@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // use cors
 // TODO: specify access control allow origin
-const cors = require('cors');
+import cors = require('cors');
 app.use(cors());
 
 // Add body parser for Notify device registration

@@ -1,6 +1,6 @@
-const Twilio = require('twilio');
+import Twilio = require('twilio');
 import config from '../config';
-import nameGenerator from "../utils/nameGenerator";
+import nameGenerator from '../utils/nameGenerator';
 
 // Access Token used for Chat and Sync
 const AccessToken = Twilio.jwt.AccessToken;
@@ -16,7 +16,7 @@ const SyncGrant = AccessToken.SyncGrant;
  *         {Object.identity} String random indentity
  *         {Object.token} String token generated
  */
-function tokenGenerator(identity = 0) {
+function tokenGenerator(identity = null) {
   // Create an access token which we will sign and return to the client
   const token = new AccessToken(
     config.TWILIO_ACCOUNT_SID,
