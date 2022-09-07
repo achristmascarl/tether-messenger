@@ -10,7 +10,9 @@ import axios from 'axios';
 
 export async function getToken(userId: string): Promise<string> {
   let data;
-  await axios.get(`http://localhost:8000/token/${userId}`)
+  await axios.post('http://localhost:8000/token', {
+    id: userId
+  })
     // get response
     .then(function (response) {
       console.log(response.data);
@@ -22,6 +24,29 @@ export async function getToken(userId: string): Promise<string> {
     });
   console.log(data.token);
   return data.token;
+}
+
+export async function connectConversation(
+  userId: string,
+  recipientId: string
+): Promise<any> {
+  const response = await axios.post(
+    'http://localhost:8000/conversations/connect',
+    {
+      userId: userId,
+      recipientId: recipientId
+    })
+    // get response
+    .then(function (response) {
+      console.log(response);
+      return response;
+    })
+    // error handling
+    .catch(function (error) {
+      console.log(error);
+    });
+  
+  return response;
 }
 
 // export const getMessages = async (

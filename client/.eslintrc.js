@@ -16,7 +16,9 @@ module.exports = {
     // we use 2 spaces to indent our code
     'indent': ['error', 2],
     // we want to avoid extraneous spaces
-    'no-multi-spaces': ['error']
+    'no-multi-spaces': ['error'],
+    // max line length of 80
+    'max-len': ['error', { 'code': 80 }]
   },
   'overrides': [
     {

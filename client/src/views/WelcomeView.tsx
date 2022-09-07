@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { connectConversation } from '../api';
 
-export default function WelcomeView({ navigation}) {
+export default function WelcomeView({ navigation }) {
   const [userId, setUserId] = useState('');
   const [recipientId, setRecipientId] = useState('');
 
   function login() {
     if (userId && recipientId) {
       console.log(`recipient: ${recipientId}, user: ${userId}`);
-      navigation.navigate('Chat', {recipientId: recipientId, userId: userId});
+      // navigation.navigate('Chat', {recipientId: recipientId, userId: userId});
+      connectConversation(userId, recipientId);
     }
   }
 
