@@ -1,18 +1,26 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  FlatList,
+  Text,
+  TextInput,
+  Button,
+  View,
+  ScrollView
+} from 'react-native';
 import ChatItem from '../components/ChatItem';
 import { Client as ConversationsClient } from '@twilio/conversations';
 
 import { getToken } from '../api';
 
 export default function ChatView({ route, navigation }) {
-  const [text, setText] = useState('');
+  const [message, onChangeMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [conversation, setConversation] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [userId, setUserId] = useState(null);
 
-  const bottomRef = useRef(null);
+  const scrollViewRef = useRef(null);
   const messagesRef = useRef([]);
   messagesRef.current = messages;
 
@@ -22,15 +30,10 @@ export default function ChatView({ route, navigation }) {
     handleTwilioClient();
   }, []);
 
-  // scroll on new messages
   useEffect(() => {
-    scrollToBottom();
+    console.log('messages:');
+    console.log(messages);
   }, [messages]);
-
-  useEffect(() => {
-    console.log('conversation:');
-    console.log(conversation);
-  }, [conversation]);
 
   async function handleTwilioClient() {
     const params = route.params;
@@ -98,15 +101,10 @@ export default function ChatView({ route, navigation }) {
   
       client.on('conversationJoined', async (conversation) => {
         // getting list of all messages since this is an existing conversation
-        const messages = await conversation.getMessages();
-        setMessages(messages.items || []);
-        scrollToBottom();
+        const conversationMessages = await conversation.getMessages();
+        setMessages(conversationMessages.items);
       });
     }
-  }
-
-  function scrollToBottom() {
-    bottomRef.current?.scrollIntoView({behavior: 'smooth'});
   }
 
   async function joinConversation(conversation) {
@@ -120,7 +118,6 @@ export default function ChatView({ route, navigation }) {
     setLoading(false);
 
     conversation.on('messageAdded', handleMessageAdded);
-    scrollToBottom();
   }
 
   function handleMessageAdded(message) {
@@ -130,44 +127,54 @@ export default function ChatView({ route, navigation }) {
   }
 
   function sendMessage() {
-    if (text.length > 0) {
+    if (message.length > 0) {
       setLoading(true);
-      conversation.sendMessage(String(text).trim());
-      setText('');
+      conversation.sendMessage(String(message).trim());
+      onChangeMessage('');
       setLoading(false);
     }
   }
 
   return(
-    <>
-      {loading ? <h1>loading</h1> : <></>}
-      <h2>{`Conversation: ${conversationId}, User: ${userId}`}</h2>
-      <ul>
-        {messages && 
-          messages.map((message) =>
-            <ChatItem
-              key={message.index}
-              message={message}
-              myUserId={userId}
-            />
-          )
+    <View>
+      {loading ? <Text>loading</Text> : null}
+      <Text>{`Conversation: ${conversationId}, User: ${userId}`}</Text>
+      {/* <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={() =>
+          scrollViewRef?.current.scrollToEnd({ animated: true })
         }
-      </ul>
-      <div ref={bottomRef}/>
-      <h3>enter message</h3>
-      <input
-        required
-        placeholder='Enter message'
-        value={text}
-        disabled={!conversation}
-        onChange={(event) => 
-          setText(event.target.value)
-        }
+      > */}
+      <FlatList
+        data={messages.map((message) => {
+          return {
+            message: message,
+            userId: userId
+          };
+        })}
+        renderItem={({ item, index }) => {
+          return <ChatItem
+            key={index}
+            message={item.message}
+            myUserId={item.userId}
+          />;
+        }}
       />
-      <button
-        onClick={sendMessage}
-        disabled={!conversation}
-      >Send</button>
-    </>
+      {/* </ScrollView> */}
+      <Text>enter message</Text>
+      <TextInput
+        placeholder='Enter message'
+        value={message}
+        // editable={!conversation}
+        onChangeText={onChangeMessage}
+        autoCorrect={false}
+        autoCapitalize={'none'}
+      />
+      <Button
+        onPress={sendMessage}
+        // disabled={!conversation}
+        title="Send"
+      />
+    </View>
   );
 }

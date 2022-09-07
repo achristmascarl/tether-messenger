@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text, TextInput, Button, View } from 'react-native';
 import { connectConversation, searchUser } from '../api';
 
 export default function WelcomeView({ navigation }) {
-  const [userId, setUserId] = useState('');
-  const [recipientId, setRecipientId] = useState('');
-  const [conversationId, setConversationId] = useState('');
+  const [userId, onChangeUserId] = useState('');
+  const [recipientId, onChangeRecipientId] = useState('');
+  const [conversationId, onChangeConversationId] = useState('');
 
   async function connect() {
     if (
@@ -35,64 +35,53 @@ export default function WelcomeView({ navigation }) {
     }
   }
 
-  function handleChangeUserId(event) {
-    setUserId(event.target.value);
-  }
-
-  function handleChangeRecipientId(event) {
-    setRecipientId(event.target.value);
-  }
-
-  function handleChangeConversationId(event) {
-    setConversationId(event.target.value);
-  }
-
   return(
     <View>
-      <h1>
+      <Text>
+        Chat app with Twilio
+      </Text>
+      <View>
         <Text>
-          Chat app with Twilio
-        </Text>
-      </h1>
-      <div>
-        <h2>
-          <Text>
             email
-          </Text>
-        </h2>
-        <input
-          required
+        </Text>
+        <TextInput
           value={userId}
-          name='userId'
           placeholder='enter your email address'
-          onChange={handleChangeUserId}
+          onChangeText={onChangeUserId}
+          autoCorrect={false}
+          autoCapitalize={'none'}
         />
-        <h2>
-          <Text>
-            recipient
-          </Text>
-        </h2>
-        <input
-          required
+      </View>
+      <View>
+        <Text>
+              recipient
+        </Text>
+        <TextInput
           value={recipientId}
-          name='recipientId'
           placeholder='enter recipient email address'
-          onChange={handleChangeRecipientId}
+          onChangeText={onChangeRecipientId}
+          autoCorrect={false}
+          autoCapitalize={'none'}
         />
-        <h2>
-          <Text>
-            conversation id
-          </Text>
-        </h2>
-        <input
-          required
+      </View>
+      <View>
+        <Text>
+              conversation id
+        </Text>
+        <TextInput
           value={conversationId}
-          name='recipientId'
-          placeholder='enter recipient email address'
-          onChange={handleChangeConversationId}
+          placeholder='enter conversation id'
+          onChangeText={onChangeConversationId}
+          autoCorrect={false}
+          autoCapitalize={'none'}
         />
-        <button onClick={connect}><Text>Connect</Text></button>
-      </div>
+      </View>
+      <View>
+        <Button
+          onPress={connect}
+          title='Connect'
+        />
+      </View>
     </View>
   );
 }

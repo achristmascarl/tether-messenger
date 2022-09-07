@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Text, View } from 'react-native';
 
 export default function ChatItem(props) {
   const message = props.message;
@@ -6,12 +7,14 @@ export default function ChatItem(props) {
   const isOwnMessage = message.author === myUserId;
 
   return(
-    <>
-      <li>
-        <p>author: {isOwnMessage ? 'Me' : message.author}</p>
-        <p>message: {message.body}</p>
-        <p>timestamp: {new Date(message.dateCreated.toISOString()).toLocaleString()}</p>
-      </li>
-    </>
+    <View>
+      <Text>author: {isOwnMessage ? 'Me' : message.author}</Text>
+      <Text>message: {message.body}</Text>
+      <Text>
+        timestamp: {
+          new Date(message.dateCreated.toISOString()).toLocaleString()
+        }
+      </Text>
+    </View>
   );
 }
