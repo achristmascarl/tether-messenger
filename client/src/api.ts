@@ -1,4 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
+import { Platform } from 'react-native';
+// TODO: move twilio client stuff here
 // import {
 //   Conversation,
 //   Message,
@@ -8,9 +10,14 @@ import axios, { AxiosResponse } from 'axios';
 //   Paginator,
 // } from '@twilio/conversations';
 
+// different base api urls for dev per platform
+const apiBaseUrl = Platform.OS === 'web' ?
+  'http://localhost:8000' :
+  'http://192.168.0.189:8000';
+
 export async function getToken(userId: string): Promise<string> {
   let data;
-  await axios.post('http://localhost:8000/token', {
+  await axios.post(`${apiBaseUrl}/token`, {
     id: userId
   })
     // get response
@@ -30,7 +37,7 @@ export async function searchUser(
   userId: string
 ): Promise<unknown> {
   const responseData = await axios.post(
-    'http://localhost:8000/users/search',
+    `${apiBaseUrl}/users/search`,
     {
       userId: userId
     })
@@ -51,7 +58,7 @@ export async function connectConversation(
   recipientId: string
 ): Promise<unknown> {
   const responseData = await axios.post(
-    'http://localhost:8000/conversations/connect',
+    `${apiBaseUrl}/connect`,
     {
       userId: userId,
       recipientId: recipientId
