@@ -1,15 +1,37 @@
 import React, { useState } from 'react';
-import { connectConversation } from '../api';
+import { Text, View } from 'react-native';
+import { connectConversation, searchUser } from '../api';
 
 export default function WelcomeView({ navigation }) {
   const [userId, setUserId] = useState('');
   const [recipientId, setRecipientId] = useState('');
+  const [conversationId, setConversationId] = useState('');
 
-  function login() {
-    if (userId && recipientId) {
+  async function connect() {
+    if (
+      userId.length > 0 &&
+      recipientId.length > 0 &&
+      conversationId.length === 0
+    ) {
       console.log(`recipient: ${recipientId}, user: ${userId}`);
-      // navigation.navigate('Chat', {recipientId: recipientId, userId: userId});
-      connectConversation(userId, recipientId);
+      const recipientExists = await searchUser(recipientId);
+      if (recipientExists) {
+        const conversationId = await connectConversation(userId, recipientId);
+        navigation.navigate('Chat', {
+          conversationId: conversationId,
+          userId: userId
+        });
+      } else {
+        console.log('recipient doesnt exist');
+      }
+    } else if (conversationId.length > 0) {
+      const userExists = await searchUser(userId);
+      if (userExists) {
+        navigation.navigate('Chat', {
+          conversationId: conversationId,
+          userId: userId
+        });
+      }
     }
   }
 
@@ -21,14 +43,22 @@ export default function WelcomeView({ navigation }) {
     setRecipientId(event.target.value);
   }
 
+  function handleChangeConversationId(event) {
+    setConversationId(event.target.value);
+  }
+
   return(
-    <>
+    <View>
       <h1>
-       Chat app with Twilio
+        <Text>
+          Chat app with Twilio
+        </Text>
       </h1>
       <div>
         <h2>
-         email
+          <Text>
+            email
+          </Text>
         </h2>
         <input
           required
@@ -38,7 +68,9 @@ export default function WelcomeView({ navigation }) {
           onChange={handleChangeUserId}
         />
         <h2>
-         receipient
+          <Text>
+            recipient
+          </Text>
         </h2>
         <input
           required
@@ -47,8 +79,20 @@ export default function WelcomeView({ navigation }) {
           placeholder='enter recipient email address'
           onChange={handleChangeRecipientId}
         />
-        <button onClick={login}>Login</button>
+        <h2>
+          <Text>
+            conversation id
+          </Text>
+        </h2>
+        <input
+          required
+          value={conversationId}
+          name='recipientId'
+          placeholder='enter recipient email address'
+          onChange={handleChangeConversationId}
+        />
+        <button onClick={connect}><Text>Connect</Text></button>
       </div>
-    </>
+    </View>
   );
 }

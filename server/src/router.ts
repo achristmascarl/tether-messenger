@@ -3,6 +3,7 @@ import { Router } from 'express';
 
 import tokenGenerator from './twilio/tokenGenerator';
 import conversationConnector from './twilio/conversationConnector';
+import userSearcher from './twilio/userSearcher';
 
 const router = new Router();
 
@@ -40,6 +41,15 @@ router.post('/conversations/connect', async (req, res, next) => {
   const recipientId: string = req.body.recipientId;
   try {
     res.send(await conversationConnector(userId, recipientId));
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/users/search', async (req, res, next) => {
+  const userId: string = req.body.userId;
+  try {
+    res.send(await userSearcher(userId));
   } catch (err) {
     next(err);
   }

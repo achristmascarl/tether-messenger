@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 // import {
 //   Conversation,
 //   Message,
@@ -26,30 +26,43 @@ export async function getToken(userId: string): Promise<string> {
   return data.token;
 }
 
+export async function searchUser(
+  userId: string
+): Promise<unknown> {
+  const responseData = await axios.post(
+    'http://localhost:8000/users/search',
+    {
+      userId: userId
+    })
+    .then(function (response) {
+      console.log(response);
+      return response.data;
+    })
+    .catch(function (error) {
+      console.log(error);
+      return false;
+    });
+  
+  return responseData;
+}
+
 export async function connectConversation(
   userId: string,
   recipientId: string
-): Promise<any> {
-  const response = await axios.post(
+): Promise<unknown> {
+  const responseData = await axios.post(
     'http://localhost:8000/conversations/connect',
     {
       userId: userId,
       recipientId: recipientId
     })
-    // get response
     .then(function (response) {
       console.log(response);
-      return response;
+      return response.data;
     })
-    // error handling
     .catch(function (error) {
       console.log(error);
     });
   
-  return response;
+  return responseData;
 }
-
-// export const getMessages = async (
-//   conversation: Conversation
-// ): Promise<Paginator<Message>> =>
-//   await conversation.getMessages(CONVERSATION_PAGE_SIZE);

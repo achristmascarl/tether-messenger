@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ChatItem from '../components/ChatItem';
-// TODO: replace with twilio conversations...
 import { Client as ConversationsClient } from '@twilio/conversations';
 
 import { getToken } from '../api';
@@ -10,7 +9,7 @@ export default function ChatView({ route, navigation }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [conversation, setConversation] = useState(null);
-  const [recipientId, setRecipientId] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
   const [userId, setUserId] = useState(null);
 
   const bottomRef = useRef(null);
@@ -39,13 +38,15 @@ export default function ChatView({ route, navigation }) {
     // TODO: await finishing setting state before continuing so that
     // it's all from state
     // use mobx... ?
-    setRecipientId(params.recipientId);
+    setConversationId(params.conversationId);
     setUserId(params.userId);
 
-    console.log(`recipientId: ${params.recipientId}, user: ${params.userId}`);
+    console.log(
+      `conversationId: ${params.conversationId}, user: ${params.userId}`
+    );
     let token = '';
 
-    if (!params.userId || !params.recipientId) {
+    if (!params.userId || !params.conversationId) {
       navigation.navigate('Welcome');
     } else {
       setLoading(true);
@@ -72,23 +73,13 @@ export default function ChatView({ route, navigation }) {
         if (state === 'initialized') {
           // Use the client
           try {
-            const conversation = await client.getConversationByUniqueName(params.recipientId);
+            const conversation =
+              await client.getConversationBySid(params.conversationId);
             console.log('joining conversation');
             console.log(conversation);
             joinConversation(conversation);
           } catch(err) {
             console.error(err.message);
-            try {
-              const conversation = await client.createConversation({
-                uniqueName: params.recipientId,
-                friendlyName: params.recipientId,
-              });
-              console.log('created conversation');
-              console.log(conversation);
-              joinConversation(conversation);
-            } catch (err) {
-              console.error(err.message);
-            }
           }
         } else if (state === 'failed') {
           console.error('connection failed');
@@ -150,7 +141,7 @@ export default function ChatView({ route, navigation }) {
   return(
     <>
       {loading ? <h1>loading</h1> : <></>}
-      <h2>{`Recipient: ${recipientId}, User: ${userId}`}</h2>
+      <h2>{`Conversation: ${conversationId}, User: ${userId}`}</h2>
       <ul>
         {messages && 
           messages.map((message) =>
