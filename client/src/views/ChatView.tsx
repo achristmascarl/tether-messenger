@@ -78,7 +78,7 @@ export default function ChatView({ route, navigation }) {
           try {
             const conversation =
               await client.getConversationBySid(params.conversationId);
-            console.log('joining conversation');
+            console.log(`joining conversation ${conversation.sid}`);
             console.log(conversation);
             joinConversation(conversation);
           } catch(err) {
@@ -98,12 +98,6 @@ export default function ChatView({ route, navigation }) {
         const token = await getToken(params.userId);
         client.updateToken(token);
       });
-  
-      client.on('conversationJoined', async (conversation) => {
-        // getting list of all messages since this is an existing conversation
-        const conversationMessages = await conversation.getMessages();
-        setMessages(conversationMessages.items);
-      });
     }
   }
 
@@ -113,8 +107,11 @@ export default function ChatView({ route, navigation }) {
     if (conversation.status !== 'joined') {
       await conversation.join();
     }
+    const conversationMessages = await conversation.getMessages();
 
+    setMessages(conversationMessages.items);
     setConversation(conversation);
+    setConversationId(conversation.sid);
     setLoading(false);
 
     conversation.on('messageAdded', handleMessageAdded);
